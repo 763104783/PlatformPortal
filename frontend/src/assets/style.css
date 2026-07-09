@@ -1,0 +1,109 @@
+/* XX平台全局样式 - 紫色科技军事风 */
+
+/* CSS变量定义 */
+:root {
+  --primary-color: #7B2D8E;       /* 紫荆花紫 - 主色 */
+  --primary-light: #9B4DCA;       /* 浅紫 */
+  --primary-dark: #5A1D6E;        /* 深紫 */
+  --primary-gradient: linear-gradient(135deg, #5A1D6E 0%, #7B2D8E 50%, #9B4DCA 100%);
+  --bg-dark: #0D0B1A;             /* 深色背景 */
+  --bg-card: rgba(123, 45, 142, 0.08);  /* 卡片背景 */
+  --text-primary: #2C1654;        /* 主文字色 */
+  --text-secondary: #6B5B7B;      /* 次要文字色 */
+  --text-light: #FFFFFF;          /* 浅色文字 */
+  --border-color: rgba(123, 45, 142, 0.2);
+  --shadow-color: rgba(123, 45, 142, 0.15);
+  --accent-gold: #C9A84C;         /* 金色点缀 */
+}
+
+/* 全局重置 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Microsoft YaHei', 'PingFang SC', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+/* Element Plus主题覆盖 */
+.el-button--primary {
+  --el-button-bg-color: var(--primary-color);
+  --el-button-border-color: var(--primary-color);
+  --el-button-hover-bg-color: var(--primary-light);
+  --el-button-hover-border-color: var(--primary-light);
+  --el-button-active-bg-color: var(--primary-dark);
+  --el-button-active-border-color: var(--primary-dark);
+}
+
+/* 科技风背景 */
+.tech-bg {
+  background: var(--bg-dark);
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(123, 45, 142, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(155, 77, 202, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(90, 29, 110, 0.1) 0%, transparent 50%);
+}
+
+/* 卡片样式 */
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  border-color: var(--primary-light);
+  box-shadow: 0 8px 32px var(--shadow-color);
+  transform: translateY(-2px);
+}
+
+/* 渐变文字 */
+.gradient-text {
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 科技线条装饰 */
+.tech-line {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+}
+
+/* 动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 3px;
+}
