@@ -67,7 +67,26 @@
           <el-input v-model="form.version" placeholder="1.0.0" />
         </el-form-item>
         <el-form-item label="封面图">
-          <el-input v-model="form.coverImage" placeholder="图片URL" />
+          <el-upload
+            class="cover-uploader"
+            action="/api/config/upload"
+            :data="{ fileKey: 'app_cover' }"
+            name="file"
+            :headers="uploadHeaders"
+            :show-file-list="false"
+            :before-upload="beforeUpload"
+            :on-success="handleUploadSuccess"
+            accept="image/png,image/jpeg,image/gif,image/webp"
+          >
+            <img v-if="form.coverImage" :src="form.coverImage" class="cover-preview" />
+            <div v-else class="cover-placeholder">
+              <el-icon :size="28"><Plus /></el-icon>
+              <span>点击上传封面图</span>
+            </div>
+          </el-upload>
+          <div class="upload-tip" v-if="form.coverImage">
+            <el-button type="danger" text size="small" @click="form.coverImage = ''">移除图片</el-button>
+          </div>
         </el-form-item>
         <el-form-item label="详细介绍">
           <el-input v-model="form.detail" type="textarea" :rows="4" />
@@ -88,7 +107,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getApps, addApp, updateApp, deleteApp, getCategories } from '../../api'
 
@@ -101,6 +120,32 @@ const keyword = ref('')
 const dialogVisible = ref(false)
 const isEdit = ref(false)
 const saving = ref(false)
+
+/** 上传请求头，携带认证token */
+const uploadHeaders = computed(() => ({
+  Authorization: localStorage.getItem('token') || ''
+}))
+
+/** 上传前校验：文件类型和大小 */
+const beforeUpload = (file) => {
+  const allowed = ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
+  if (!allowed.includes(file.type)) {
+    ElMessage.error('仅支持 PNG/JPG/GIF/WebP 格式图片')
+    return false
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    ElMessage.error('图片大小不能超过 5MB')
+    return false
+  }
+  return true
+}
+
+/** 上传成功回调，将返回的图片路径写入表单 */
+const handleUploadSuccess = (res) => {
+  // res 已被响应拦截器解包，res.data 为图片访问路径
+  form.coverImage = res.data
+  ElMessage.success('封面上传成功')
+}
 
 const form = reactive({
   id: null, name: '', description: '', categoryId: null,
@@ -183,5 +228,38 @@ const handleDelete = async (id) => {
   display: flex;
   gap: 12px;
   margin-bottom: 16px;
+}
+.cover-uploader :deep(.el-upload) {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.2s;
+  width: 200px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
+}
+.cover-uploader :deep(.el-upload:hover) {
+  border-color: #7c3aed;
+}
+.cover-preview {
+  width: 200px;
+  height: 120px;
+  object-fit: cover;
+  display: block;
+}
+.cover-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: #999;
+  font-size: 13px;
+}
+.upload-tip {
+  margin-top: 4px;
 }
 </style>
