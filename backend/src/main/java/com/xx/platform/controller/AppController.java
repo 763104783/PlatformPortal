@@ -10,11 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Web应用管理控制器
- * 公开接口：应用列表查询、详情、点击记录
- * 管理员接口：新增、编辑、删除
+ * Web应用管理控制器（已废弃，使用 DeliveryAppController 代替）
+ * 此控制器已停用，避免与新的 /api/app 路径冲突
  */
-@RestController
+// @RestController  // 已禁用，使用 DeliveryAppController
 @RequestMapping("/api/apps")
 public class AppController {
 

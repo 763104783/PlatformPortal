@@ -56,7 +56,7 @@ const handleLogin = async () => {
   try {
     await userStore.login(form.username, form.password)
     ElMessage.success('登录成功')
-    const redirect = route.query.redirect || '/admin/apps'
+    const redirect = route.query.redirect || '/admin'
     router.push(redirect)
   } catch (e) {
     ElMessage.error(e.message || '登录失败')

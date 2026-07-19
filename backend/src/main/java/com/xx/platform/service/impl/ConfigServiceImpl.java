@@ -5,15 +5,11 @@ import com.xx.platform.entity.PlatformConfig;
 import com.xx.platform.mapper.PlatformConfigMapper;
 import com.xx.platform.service.ConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * 平台配置服务实现类
@@ -23,9 +19,6 @@ public class ConfigServiceImpl implements ConfigService {
 
     @Autowired
     private PlatformConfigMapper configMapper;
-
-    @Value("${upload.path:./uploads/}")
-    private String uploadPath;
 
     @Override
     public List<PlatformConfig> getAllConfigs() {
@@ -52,36 +45,49 @@ public class ConfigServiceImpl implements ConfigService {
         }
     }
 
+    /**
+     * 上传文件（Logo/底图等），将图片转为Base64 Data URL存入数据库
+     * @param fileKey 配置key
+     * @param fileName 文件名（用于推断MIME类型）
+     * @param fileBytes 文件内容
+     * @return Base64 Data URL字符串
+     */
     @Override
     public String uploadFile(String fileKey, String fileName, byte[] fileBytes) {
-        // 确保上传目录存在
-        File dir = new File(uploadPath);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
+        // 根据文件名推断MIME类型
+        String mimeType = getMimeType(fileName);
 
-        // 生成唯一文件名
-        String ext = fileName.contains(".") ? fileName.substring(fileName.lastIndexOf(".")) : "";
-        String newFileName = UUID.randomUUID().toString().replace("-", "") + ext;
-        File file = new File(uploadPath, newFileName);
+        // 将文件字节转为Base64编码
+        String base64 = Base64.getEncoder().encodeToString(fileBytes);
 
-        try (FileOutputStream fos = new FileOutputStream(file)) {
-            fos.write(fileBytes);
-        } catch (IOException e) {
-            throw new RuntimeException("文件上传失败：" + e.getMessage());
-        }
+        // 拼接为Data URL格式，可直接用于<img src>
+        String dataUrl = "data:" + mimeType + ";base64," + base64;
 
-        // 文件访问路径
-        String fileUrl = "/uploads/" + newFileName;
-
-        // 更新配置
+        // 将Base64 Data URL存入平台配置表
         PlatformConfig config = configMapper.selectOne(
                 new LambdaQueryWrapper<PlatformConfig>().eq(PlatformConfig::getConfigKey, fileKey));
         if (config != null) {
-            config.setConfigValue(fileUrl);
+            config.setConfigValue(dataUrl);
             configMapper.updateById(config);
         }
 
-        return fileUrl;
+        return dataUrl;
+    }
+
+    /**
+     * 根据文件名推断MIME类型
+     * @param fileName 文件名
+     * @return MIME类型字符串
+     */
+    private String getMimeType(String fileName) {
+        if (fileName == null) return "image/png";
+        String lower = fileName.toLowerCase();
+        if (lower.endsWith(".png")) return "image/png";
+        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
+        if (lower.endsWith(".gif")) return "image/gif";
+        if (lower.endsWith(".webp")) return "image/webp";
+        if (lower.endsWith(".svg")) return "image/svg+xml";
+        if (lower.endsWith(".ico")) return "image/x-icon";
+        return "image/png"; // 默认返回png类型
     }
 }

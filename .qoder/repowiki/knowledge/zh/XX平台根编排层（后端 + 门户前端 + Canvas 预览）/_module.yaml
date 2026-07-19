@@ -1,0 +1,12 @@
+schema_version: 1
+module_path: ""
+title: XX平台根编排层（后端 + 门户前端 + Canvas 预览）
+scope:
+    - API.md
+    - Canvas.html
+    - xx-platform-report.canvas.status.json
+    - xx-platform-report.canvas.tsx
+    - prompt.md
+source_files: []
+depends_on: []
+related_to: []

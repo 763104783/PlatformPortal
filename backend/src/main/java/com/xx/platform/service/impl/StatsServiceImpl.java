@@ -1,29 +1,39 @@
 package com.xx.platform.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.xx.platform.entity.WebApp;
-import com.xx.platform.mapper.AppCategoryMapper;
-import com.xx.platform.mapper.SysUserMapper;
-import com.xx.platform.mapper.WebAppMapper;
+import com.xx.platform.entity.AppType;
+import com.xx.platform.entity.DeliveryApp;
+import com.xx.platform.entity.BizProcess;
+import com.xx.platform.entity.DataModel;
+import com.xx.platform.entity.AlgoModel;
+import com.xx.platform.mapper.*;
 import com.xx.platform.service.StatsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 统计服务实现类
+ * 基于新版实体（delivery_app、app_type、biz_process、data_model、algo_model）
  */
 @Service
 public class StatsServiceImpl implements StatsService {
 
     @Autowired
-    private WebAppMapper webAppMapper;
+    private DeliveryAppMapper deliveryAppMapper;
 
     @Autowired
-    private AppCategoryMapper categoryMapper;
+    private AppTypeMapper appTypeMapper;
+
+    @Autowired
+    private BizProcessMapper bizProcessMapper;
+
+    @Autowired
+    private DataModelMapper dataModelMapper;
+
+    @Autowired
+    private AlgoModelMapper algoModelMapper;
 
     @Autowired
     private SysUserMapper userMapper;
@@ -32,41 +42,68 @@ public class StatsServiceImpl implements StatsService {
     public Map<String, Object> getOverviewStats() {
         Map<String, Object> stats = new HashMap<>();
 
-        // 收录应用总数
-        Long appCount = webAppMapper.selectCount(null);
+        // 收录应用总数（delivery_app）
+        Long appCount = deliveryAppMapper.selectCount(null);
         stats.put("appCount", appCount);
 
-        // 总点击次数
-        List<WebApp> allApps = webAppMapper.selectList(null);
-        long totalClicks = allApps.stream()
-                .mapToLong(app -> app.getClickCount() != null ? app.getClickCount() : 0)
-                .sum();
-        stats.put("totalClicks", totalClicks);
+        // 业务流程总数
+        Long processCount = bizProcessMapper.selectCount(null);
+        stats.put("processCount", processCount);
+
+        // 数据模型总数
+        Long dataModelCount = dataModelMapper.selectCount(null);
+        stats.put("dataModelCount", dataModelCount);
+
+        // 算法模型总数
+        Long algoModelCount = algoModelMapper.selectCount(null);
+        stats.put("algoModelCount", algoModelCount);
 
         // 用户总数
         Long userCount = userMapper.selectCount(null);
         stats.put("userCount", userCount);
 
-        // 分类总数
-        Long categoryCount = categoryMapper.selectCount(null);
-        stats.put("categoryCount", categoryCount);
-
-        // 各分类下的应用数量
-        Map<String, Long> categoryStats = new HashMap<>();
-        allApps.forEach(app -> {
-            String key = app.getCategoryId() != null ? String.valueOf(app.getCategoryId()) : "未分类";
-            categoryStats.merge(key, 1L, Long::sum);
-        });
-        stats.put("categoryStats", categoryStats);
-
-        // 热门应用TOP5（按点击量）
-        List<WebApp> topApps = webAppMapper.selectList(
-                new LambdaQueryWrapper<WebApp>()
-                        .eq(WebApp::getStatus, 1)
-                        .orderByDesc(WebApp::getClickCount)
-                        .last("LIMIT 5"));
-        stats.put("topApps", topApps);
+        // 总点击次数
+        List<DeliveryApp> allApps = deliveryAppMapper.selectList(null);
+        long totalClicks = allApps.stream()
+                .mapToLong(app -> app.getClickCount() != null ? app.getClickCount() : 0)
+                .sum();
+        stats.put("totalClicks", totalClicks);
 
         return stats;
+    }
+
+    @Override
+    public List<Map<String, Object>> getTopApps(int limit) {
+        List<DeliveryApp> topApps = deliveryAppMapper.selectList(
+                new LambdaQueryWrapper<DeliveryApp>()
+                        .eq(DeliveryApp::getStatus, 1)
+                        .orderByDesc(DeliveryApp::getClickCount)
+                        .last("LIMIT " + limit));
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (DeliveryApp app : topApps) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("id", app.getId());
+            item.put("name", app.getName());
+            item.put("clickCount", app.getClickCount());
+            result.add(item);
+        }
+        return result;
+    }
+
+    @Override
+    public List<Map<String, Object>> getAppTypeStats() {
+        List<AppType> allTypes = appTypeMapper.selectList(
+                new LambdaQueryWrapper<AppType>().orderByAsc(AppType::getSortOrder));
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (AppType type : allTypes) {
+            Long count = deliveryAppMapper.selectCount(
+                    new LambdaQueryWrapper<DeliveryApp>()
+                            .eq(DeliveryApp::getAppTypeId, type.getId()));
+            Map<String, Object> item = new HashMap<>();
+            item.put("typeName", type.getName());
+            item.put("count", count);
+            result.add(item);
+        }
+        return result;
     }
 }

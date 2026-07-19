@@ -28,19 +28,19 @@ public class ConfigController {
 
     /**
      * 获取所有平台配置
-     * GET /api/config
+     * GET /api/config/list
      */
-    @GetMapping
+    @GetMapping("/list")
     public Result<List<PlatformConfig>> getAll() {
         return Result.success(configService.getAllConfigs());
     }
 
     /**
      * 批量更新配置
-     * PUT /api/config
+     * PUT /api/config/update
      * @param configs key-value对
      */
-    @PutMapping
+    @PutMapping("/update")
     public Result<Void> update(@RequestBody Map<String, String> configs,
                                @RequestHeader(value = "Authorization", required = false) String token) {
         checkAdmin(token);

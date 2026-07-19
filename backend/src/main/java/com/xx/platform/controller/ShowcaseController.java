@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 宣贯数据控制器
@@ -25,9 +26,9 @@ public class ShowcaseController {
 
     /**
      * 按类别获取宣贯项列表
-     * GET /api/showcase?category=USER_ECOLOGY
+     * GET /api/showcase/list?category=USER_ECOLOGY
      */
-    @GetMapping
+    @GetMapping("/list")
     public Result<List<ShowcaseItem>> list(@RequestParam(required = false) String category) {
         return Result.success(showcaseService.getShowcaseItems(category));
     }
@@ -75,6 +76,23 @@ public class ShowcaseController {
                                @RequestHeader(value = "Authorization", required = false) String token) {
         checkAdmin(token);
         showcaseService.deleteShowcaseItem(id);
+        return Result.success();
+    }
+
+    /**
+     * 批量删除宣贯项（管理员）
+     * DELETE /api/showcase/batch
+     */
+    @DeleteMapping("/batch")
+    public Result<Void> batchDelete(@RequestBody Map<String, List<Integer>> params,
+                                    @RequestHeader(value = "Authorization", required = false) String token) {
+        checkAdmin(token);
+        List<Integer> ids = params.get("ids");
+        if (ids != null) {
+            for (Integer id : ids) {
+                showcaseService.deleteShowcaseItem(id);
+            }
+        }
         return Result.success();
     }
 

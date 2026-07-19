@@ -64,12 +64,108 @@ INSERT OR IGNORE INTO platform_config (config_key, config_value, description) VA
 INSERT OR IGNORE INTO platform_config (config_key, config_value, description) VALUES ('company_name', 'XX公司', '公司名称');
 INSERT OR IGNORE INTO platform_config (config_key, config_value, description) VALUES ('logo_path', '', 'Logo路径');
 INSERT OR IGNORE INTO platform_config (config_key, config_value, description) VALUES ('bg_image', '', '底图路径');
+INSERT OR IGNORE INTO platform_config (config_key, config_value, description) VALUES ('platform_version', 'V1.0.0', '平台版本号');
+INSERT OR IGNORE INTO platform_config (config_key, config_value, description) VALUES ('platform_intro', '基于模型驱动架构的标准赋能平台', '平台简介');
 
 -- 示例应用分类
 INSERT OR IGNORE INTO app_category (name, sort_order) VALUES ('业务管理', 1);
 INSERT OR IGNORE INTO app_category (name, sort_order) VALUES ('数据分析', 2);
 INSERT OR IGNORE INTO app_category (name, sort_order) VALUES ('协同办公', 3);
 INSERT OR IGNORE INTO app_category (name, sort_order) VALUES ('智能决策', 4);
+
+-- ==================== 新版实体表（交付应用体系） ====================
+
+-- 应用类型表（枚举量）
+CREATE TABLE IF NOT EXISTS app_type (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name VARCHAR(50) NOT NULL,
+  description VARCHAR(200),
+  sort_order INTEGER DEFAULT 0,
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 流程模板表（枚举量）
+CREATE TABLE IF NOT EXISTS process_template (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name VARCHAR(100) NOT NULL,
+  description VARCHAR(200),
+  sort_order INTEGER DEFAULT 0,
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 交付应用表（实体量）
+CREATE TABLE IF NOT EXISTS delivery_app (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name VARCHAR(100) NOT NULL,
+  app_type_id INTEGER,
+  url VARCHAR(500),
+  description VARCHAR(500),
+  cover_image VARCHAR(500),
+  detail TEXT,
+  version VARCHAR(20),
+  click_count INTEGER DEFAULT 0,
+  sort_order INTEGER DEFAULT 0,
+  status INTEGER DEFAULT 1,
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  update_time DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 业务流程表（实体量）
+CREATE TABLE IF NOT EXISTS biz_process (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name VARCHAR(100) NOT NULL,
+  description VARCHAR(500),
+  author VARCHAR(50),
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  update_time DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 数据实体模型表（实体量）
+CREATE TABLE IF NOT EXISTS data_model (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name VARCHAR(100) NOT NULL,
+  description VARCHAR(500),
+  author VARCHAR(50),
+  version VARCHAR(20),
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  update_time DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 算法能力模型表（实体量）
+CREATE TABLE IF NOT EXISTS algo_model (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name VARCHAR(100) NOT NULL,
+  description VARCHAR(500),
+  author VARCHAR(50),
+  version VARCHAR(20),
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  update_time DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 应用-流程关联表（中间表）
+CREATE TABLE IF NOT EXISTS app_process_rel (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  app_id INTEGER NOT NULL,
+  process_id INTEGER NOT NULL
+);
+
+-- 流程-模板关联表（中间表）
+CREATE TABLE IF NOT EXISTS process_template_rel (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  process_id INTEGER NOT NULL,
+  template_id INTEGER NOT NULL
+);
+
+-- 示例应用类型
+INSERT OR IGNORE INTO app_type (name, description, sort_order) VALUES ('业务管理类', 'ERP、CRM等企业管理软件', 1);
+INSERT OR IGNORE INTO app_type (name, description, sort_order) VALUES ('数据分析类', '数据可视化、BI分析工具', 2);
+INSERT OR IGNORE INTO app_type (name, description, sort_order) VALUES ('协同办公类', 'OA、项目管理等协作工具', 3);
+INSERT OR IGNORE INTO app_type (name, description, sort_order) VALUES ('智能决策类', 'AI辅助决策、预测分析系统', 4);
+
+-- 示例流程模板
+INSERT OR IGNORE INTO process_template (name, description, sort_order) VALUES ('标准审批流程', '通用的多级审批流程模板', 1);
+INSERT OR IGNORE INTO process_template (name, description, sort_order) VALUES ('数据采集流程', '标准化的数据采集与校验流程', 2);
+INSERT OR IGNORE INTO process_template (name, description, sort_order) VALUES ('发布上线流程', '应用从开发到上线的标准流程', 3);
 
 -- 示例宣贯数据
 INSERT OR IGNORE INTO showcase_item (category, title, summary, content, sort_order) VALUES ('USER_ECOLOGY', '用户生态概览', '覆盖10+行业领域，服务500+企业客户', '详细用户生态数据：覆盖10+行业领域，服务500+企业客户，用户遍布全国各省市。', 1);

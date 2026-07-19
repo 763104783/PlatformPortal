@@ -8,12 +8,15 @@ import com.xx.platform.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * 用户管理控制器
  * 管理员专用：用户的增删改查
  */
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/user")
 public class UserController {
 
     @Autowired
@@ -24,9 +27,9 @@ public class UserController {
 
     /**
      * 获取用户列表（分页）
-     * GET /api/users?page=1&size=10
+     * GET /api/user/page?page=1&size=10
      */
-    @GetMapping
+    @GetMapping("/page")
     public Result<Page<SysUser>> list(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -37,7 +40,7 @@ public class UserController {
 
     /**
      * 新增用户
-     * POST /api/users
+     * POST /api/user
      */
     @PostMapping
     public Result<Void> add(@RequestBody SysUser user,
@@ -49,7 +52,7 @@ public class UserController {
 
     /**
      * 编辑用户
-     * PUT /api/users/{id}
+     * PUT /api/user/{id}
      */
     @PutMapping("/{id}")
     public Result<Void> update(@PathVariable Integer id, @RequestBody SysUser user,
@@ -62,13 +65,30 @@ public class UserController {
 
     /**
      * 删除用户
-     * DELETE /api/users/{id}
+     * DELETE /api/user/{id}
      */
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Integer id,
                                @RequestHeader(value = "Authorization", required = false) String token) {
         checkAdmin(token);
         userService.deleteUser(id);
+        return Result.success();
+    }
+
+    /**
+     * 批量删除用户
+     * DELETE /api/user/batch
+     */
+    @DeleteMapping("/batch")
+    public Result<Void> batchDelete(@RequestBody Map<String, List<Integer>> params,
+                                    @RequestHeader(value = "Authorization", required = false) String token) {
+        checkAdmin(token);
+        List<Integer> ids = params.get("ids");
+        if (ids != null) {
+            for (Integer id : ids) {
+                userService.deleteUser(id);
+            }
+        }
         return Result.success();
     }
 

@@ -1,0 +1,44 @@
+# 知识卡导出索引文件
+schema_version: 1
+locale: zh-CN
+branch: main
+nodes_managed: true
+exported_at: "2026-07-19T09:08:18Z"
+modules:
+    "":
+        dir_name: XX平台根编排层（后端 + 门户前端 + Canvas 预览）
+        title: XX平台根编排层（后端 + 门户前端 + Canvas 预览）
+        scope:
+            - API.md
+            - Canvas.html
+            - xx-platform-report.canvas.status.json
+            - xx-platform-report.canvas.tsx
+            - prompt.md
+        source_files: []
+        children:
+            - backend
+            - frontend_portal
+        depends_on: []
+        related_to: []
+    backend:
+        dir_name: XX平台后端服务（Spring Boot + SQLite）
+        title: XX平台后端服务（Spring Boot + SQLite）
+        scope:
+            - backend/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: frontend_portal
+    frontend_portal:
+        dir_name: 门户首页与产品宣贯展示
+        title: 门户首页与产品宣贯展示
+        scope:
+            - frontend/src/views/PortalHome.vue
+            - frontend/src/views/Showcase.vue
+            - frontend/src/views/ShowcaseDetail.vue
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: backend

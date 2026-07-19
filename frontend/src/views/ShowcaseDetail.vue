@@ -91,4 +91,11 @@ onMounted(async () => {
   color: #D0C4DC;
   line-height: 2;
 }
+
+/* Tag标签紫色主题 */
+:deep(.el-tag) {
+  --el-tag-bg-color: rgba(123, 45, 142, 0.15);
+  --el-tag-border-color: rgba(123, 45, 142, 0.3);
+  --el-tag-text-color: #B8A9C9;
+}
 </style>

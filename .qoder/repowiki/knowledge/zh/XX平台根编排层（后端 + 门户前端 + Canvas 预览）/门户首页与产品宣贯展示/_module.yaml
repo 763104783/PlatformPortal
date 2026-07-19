@@ -1,0 +1,11 @@
+schema_version: 1
+module_path: frontend_portal
+title: 门户首页与产品宣贯展示
+scope:
+    - frontend/src/views/PortalHome.vue
+    - frontend/src/views/Showcase.vue
+    - frontend/src/views/ShowcaseDetail.vue
+source_files: []
+depends_on: []
+related_to:
+    - path: backend
